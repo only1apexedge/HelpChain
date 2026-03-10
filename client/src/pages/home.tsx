@@ -1,3 +1,4 @@
+// HelpChain Landing Page - UI Overhaul v2
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
