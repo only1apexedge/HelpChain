@@ -10,13 +10,40 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Loader2, ChevronRight, ChevronLeft, Sparkles, User, Briefcase, Check, Navigation } from "lucide-react";
+import { 
+  MapPin, Loader2, ChevronRight, ChevronLeft, 
+  User, Briefcase, Check, Navigation, 
+  Zap, Shield, Globe, DollarSign
+} from "lucide-react";
 
 const SKILL_OPTIONS = [
   "Web Development", "Mobile Apps", "Design", "Writing", "Marketing",
   "Data Entry", "Translation", "Video Editing", "Photography", "Tutoring",
   "Cleaning", "Moving", "Delivery", "Handyman", "Cooking",
   "Pet Care", "Gardening", "Errands", "Research", "Consulting",
+];
+
+const WELCOME_SLIDES = [
+  {
+    icon: Zap,
+    title: "Post tasks in minutes",
+    description: "Describe what you need, set your budget, and get matched with skilled workers instantly."
+  },
+  {
+    icon: Shield,
+    title: "Secure escrow payments",
+    description: "Your money is held safely until the task is completed to your satisfaction. Zero risk."
+  },
+  {
+    icon: Globe,
+    title: "Local & remote services",
+    description: "From furniture moving to graphic design - find help for anything, anywhere."
+  },
+  {
+    icon: DollarSign,
+    title: "Earn by helping others",
+    description: "Browse available tasks, submit proposals, and get paid for your skills."
+  },
 ];
 
 export default function OnboardingPage() {
@@ -34,11 +61,7 @@ export default function OnboardingPage() {
   const [location, setLocationVal] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
-  const steps = [
-    { title: "Welcome!", icon: Sparkles },
-    { title: "Your Profile", icon: User },
-    { title: "Your Skills", icon: Briefcase },
-  ];
+  const totalSteps = 4; // Welcome slides + Profile + Skills
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills((prev) =>
@@ -90,7 +113,7 @@ export default function OnboardingPage() {
         await updateUserProfile({ displayName: fullName });
       }
       localStorage.setItem("hc-onboarding-done", "true");
-      toast({ title: "Profile set up! 🎉", description: "You're all set to start using HelpChain." });
+      toast({ title: "Profile set up!", description: "You're all set to start using HelpChain." });
       setLocation("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -99,126 +122,272 @@ export default function OnboardingPage() {
     }
   };
 
+  const canProceed = () => {
+    if (step < WELCOME_SLIDES.length) return true;
+    if (step === WELCOME_SLIDES.length) return fullName.trim().length > 0;
+    return true;
+  };
+
+  const handleNext = () => {
+    if (step < totalSteps - 1) {
+      setStep(step + 1);
+    } else {
+      handleComplete();
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 0) setStep(step - 1);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        {/* Progress */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {steps.map((s, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                i <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              }`}>
-                {i < step ? <Check className="w-4 h-4" /> : i + 1}
-              </div>
-              {i < steps.length - 1 && <div className={`w-12 h-0.5 ${i < step ? "bg-primary" : "bg-muted"}`} />}
-            </div>
-          ))}
-        </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Progress Bar */}
+      <div className="w-full h-1 bg-muted">
+        <motion.div 
+          className="h-full bg-primary"
+          initial={{ width: 0 }}
+          animate={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+          transition={{ duration: 0.3 }}
+        />
+      </div>
 
-        <AnimatePresence mode="wait">
-          {step === 0 && (
-            <motion.div key="welcome" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <Card className="border-none shadow-2xl">
-                <CardContent className="p-8 text-center space-y-6">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-white shadow-lg">
-                    <Sparkles className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground">Welcome to HelpChain!</h1>
-                    <p className="text-muted-foreground mt-2">Let's set up your profile so you can start posting tasks or helping others. This takes less than a minute.</p>
-                  </div>
-                  <Button onClick={() => setStep(1)} className="w-full h-12 text-base gap-2">
-                    Get Started <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg">
+          <AnimatePresence mode="wait">
+            {/* Welcome Slides */}
+            {step < WELCOME_SLIDES.length && (
+              <motion.div 
+                key={`welcome-${step}`}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-0 text-center">
+                    <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      {(() => {
+                        const Icon = WELCOME_SLIDES[step].icon;
+                        return <Icon className="w-10 h-10 text-primary" />;
+                      })()}
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-4">
+                      {WELCOME_SLIDES[step].title}
+                    </h1>
+                    <p className="text-muted-foreground text-lg leading-relaxed mb-10 max-w-md mx-auto">
+                      {WELCOME_SLIDES[step].description}
+                    </p>
+                    
+                    {/* Slide Indicators */}
+                    <div className="flex justify-center gap-2 mb-10">
+                      {WELCOME_SLIDES.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setStep(i)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            i === step ? "bg-primary w-6" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                          }`}
+                        />
+                      ))}
+                    </div>
 
-          {step === 1 && (
-            <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <Card className="border-none shadow-2xl">
-                <CardContent className="p-8 space-y-5">
-                  <div className="text-center mb-2">
-                    <h2 className="text-xl font-bold text-foreground">Tell us about yourself</h2>
-                    <p className="text-sm text-muted-foreground mt-1">This helps others find and trust you</p>
-                  </div>
-
-                  <div>
-                    <Label>Full Name</Label>
-                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" className="mt-1.5 h-12" />
-                  </div>
-
-                  <div>
-                    <Label>Short Bio</Label>
-                    <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="What do you do? What are you good at?" className="mt-1.5 min-h-[80px]" maxLength={300} />
-                    <p className="text-xs text-muted-foreground mt-1 text-right">{bio.length}/300</p>
-                  </div>
-
-                  <div>
-                    <Label>Location</Label>
-                    <div className="flex gap-2 mt-1.5">
-                      <Input value={location} onChange={(e) => setLocationVal(e.target.value)} placeholder="e.g., Lagos, Nigeria" className="flex-1 h-12" />
-                      <Button type="button" variant="outline" className="h-12 gap-2 px-4" onClick={getCurrentLocation} disabled={gettingLocation}>
-                        {gettingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-                        {gettingLocation ? "" : "Detect"}
+                    <div className="flex gap-3">
+                      {step > 0 && (
+                        <Button 
+                          variant="outline" 
+                          onClick={handleBack}
+                          className="flex-1 h-12 rounded-xl"
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-1" />
+                          Back
+                        </Button>
+                      )}
+                      <Button 
+                        onClick={handleNext}
+                        className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
+                      >
+                        {step === WELCOME_SLIDES.length - 1 ? "Get Started" : "Continue"}
+                        <ChevronRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <Button variant="outline" onClick={() => setStep(0)} className="flex-1 h-12 gap-2">
-                      <ChevronLeft className="w-4 h-4" /> Back
-                    </Button>
-                    <Button onClick={() => setStep(2)} className="flex-1 h-12 gap-2" disabled={!fullName.trim()}>
-                      Next <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div key="skills" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <Card className="border-none shadow-2xl">
-                <CardContent className="p-8 space-y-5">
-                  <div className="text-center mb-2">
-                    <h2 className="text-xl font-bold text-foreground">What are your skills?</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Select skills you can help others with (optional)</p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {SKILL_OPTIONS.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant={selectedSkills.includes(skill) ? "default" : "outline"}
-                        className="cursor-pointer px-3 py-1.5 text-sm transition-all hover:scale-105"
-                        onClick={() => toggleSkill(skill)}
+                    
+                    {step === 0 && (
+                      <button
+                        onClick={() => setStep(WELCOME_SLIDES.length)}
+                        className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {selectedSkills.includes(skill) && <Check className="w-3 h-3 mr-1" />}
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  {selectedSkills.length > 0 && (
-                    <p className="text-xs text-muted-foreground">{selectedSkills.length} skills selected</p>
-                  )}
+                        Skip intro
+                      </button>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
-                  <div className="flex gap-3 pt-2">
-                    <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-12 gap-2">
-                      <ChevronLeft className="w-4 h-4" /> Back
-                    </Button>
-                    <Button onClick={handleComplete} disabled={saving} className="flex-1 h-12 gap-2 bg-gradient-to-r from-primary to-accent">
-                      {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <>Complete Setup <Sparkles className="w-4 h-4" /></>}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {/* Profile Step */}
+            {step === WELCOME_SLIDES.length && (
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="border shadow-sm">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                      <User className="w-7 h-7 text-primary" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-foreground mb-1">Tell us about yourself</h2>
+                    <p className="text-sm text-muted-foreground mb-6">This helps others find and trust you</p>
+
+                    <div className="space-y-5">
+                      <div>
+                        <Label className="text-sm font-medium">Full name</Label>
+                        <Input 
+                          value={fullName} 
+                          onChange={(e) => setFullName(e.target.value)} 
+                          placeholder="Your name" 
+                          className="mt-1.5 h-11" 
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Short bio</Label>
+                        <Textarea 
+                          value={bio} 
+                          onChange={(e) => setBio(e.target.value)} 
+                          placeholder="What do you do? What are you good at?" 
+                          className="mt-1.5 min-h-[100px] resize-none" 
+                          maxLength={300} 
+                        />
+                        <p className="text-xs text-muted-foreground mt-1 text-right">{bio.length}/300</p>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Location</Label>
+                        <div className="flex gap-2 mt-1.5">
+                          <Input 
+                            value={location} 
+                            onChange={(e) => setLocationVal(e.target.value)} 
+                            placeholder="e.g., Lagos, Nigeria" 
+                            className="flex-1 h-11" 
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="h-11 gap-2 px-4" 
+                            onClick={getCurrentLocation} 
+                            disabled={gettingLocation}
+                          >
+                            {gettingLocation ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Navigation className="w-4 h-4" />
+                                Detect
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-8">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleBack} 
+                        className="flex-1 h-11 rounded-xl"
+                      >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        Back
+                      </Button>
+                      <Button 
+                        onClick={handleNext} 
+                        className="flex-1 h-11 rounded-xl bg-primary hover:bg-primary/90" 
+                        disabled={!canProceed()}
+                      >
+                        Continue
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Skills Step */}
+            {step === WELCOME_SLIDES.length + 1 && (
+              <motion.div
+                key="skills"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="border shadow-sm">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                      <Briefcase className="w-7 h-7 text-primary" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-foreground mb-1">What are your skills?</h2>
+                    <p className="text-sm text-muted-foreground mb-6">Select skills you can help others with (optional)</p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {SKILL_OPTIONS.map((skill) => (
+                        <Badge
+                          key={skill}
+                          variant={selectedSkills.includes(skill) ? "default" : "outline"}
+                          className={`cursor-pointer px-3 py-1.5 text-sm transition-all ${
+                            selectedSkills.includes(skill) 
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                              : "hover:bg-muted"
+                          }`}
+                          onClick={() => toggleSkill(skill)}
+                        >
+                          {selectedSkills.includes(skill) && <Check className="w-3 h-3 mr-1" />}
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                    
+                    {selectedSkills.length > 0 && (
+                      <p className="text-sm text-muted-foreground mb-6">
+                        {selectedSkills.length} skill{selectedSkills.length > 1 ? "s" : ""} selected
+                      </p>
+                    )}
+
+                    <div className="flex gap-3 mt-8">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleBack} 
+                        className="flex-1 h-11 rounded-xl"
+                      >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        Back
+                      </Button>
+                      <Button 
+                        onClick={handleComplete} 
+                        disabled={saving} 
+                        className="flex-1 h-11 rounded-xl bg-primary hover:bg-primary/90"
+                      >
+                        {saving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          "Complete setup"
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

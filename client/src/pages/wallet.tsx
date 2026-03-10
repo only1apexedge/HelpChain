@@ -361,17 +361,18 @@ function WalletPageContent() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
-        <div className="flex items-center justify-between mb-8">
+      <main className="flex-1">
+        <div className="container-tight py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Wallet</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Wallet</h1>
             <p className="text-muted-foreground text-sm mt-1">Manage your funds, deposits, and withdrawals</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setDepositOpen(true)} className="gap-2 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground">
+            <Button onClick={() => setDepositOpen(true)} className="gap-2 rounded-lg bg-primary hover:bg-primary/90">
               <Download size={16} /> Deposit
             </Button>
-            <Button onClick={() => setWithdrawOpen(true)} variant="outline" className="gap-2 rounded-xl">
+            <Button onClick={() => setWithdrawOpen(true)} variant="outline" className="gap-2 rounded-lg">
               <Upload size={16} /> Withdraw
             </Button>
           </div>
@@ -379,22 +380,22 @@ function WalletPageContent() {
 
         {/* Balance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="md:col-span-2 bg-gradient-to-br from-primary to-accent text-primary-foreground border-0 shadow-xl">
+          <Card className="md:col-span-2 bg-foreground text-background border-0">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-primary-foreground/80 text-sm font-medium"><Wallet size={18} /> Total Balance</div>
-                <button onClick={() => setHideBalance(!hideBalance)} className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" title={hideBalance ? "Show balance" : "Hide balance"}>
+                <div className="flex items-center gap-2 text-background/70 text-sm font-medium"><Wallet size={18} /> Total Balance</div>
+                <button onClick={() => setHideBalance(!hideBalance)} className="text-background/50 hover:text-background/80 transition-colors" title={hideBalance ? "Show balance" : "Hide balance"}>
                   {hideBalance ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {isLoading ? (
-                <div className="h-12 flex items-center"><Loader2 className="w-6 h-6 animate-spin text-primary-foreground/60" /></div>
+                <div className="h-12 flex items-center"><Loader2 className="w-6 h-6 animate-spin text-background/60" /></div>
               ) : (
-                <p className="text-4xl font-bold tracking-tight">{hideBalance ? masked : formatLocal(totalBalance)}</p>
+                <p className="text-4xl font-semibold tracking-tight">{hideBalance ? masked : formatLocal(totalBalance)}</p>
               )}
               <div className="flex gap-6 mt-4 text-sm">
-                <div><span className="text-primary-foreground/70">Available</span><p className="font-semibold">{hideBalance ? masked : formatLocal(availableBalance)}</p></div>
-                <div><span className="text-primary-foreground/70">In Escrow</span><p className="font-semibold">{hideBalance ? masked : formatLocal(escrowBalance)}</p></div>
+                <div><span className="text-background/60">Available</span><p className="font-medium">{hideBalance ? masked : formatLocal(availableBalance)}</p></div>
+                <div><span className="text-background/60">In Escrow</span><p className="font-medium">{hideBalance ? masked : formatLocal(escrowBalance)}</p></div>
               </div>
             </CardContent>
           </Card>
@@ -578,6 +579,7 @@ function WalletPageContent() {
             )}
           </CardContent>
         </Card>
+        </div>
       </main>
       <Footer />
 
