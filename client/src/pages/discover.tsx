@@ -6,10 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import {
-  MapPin, Clock, Search, Filter, ArrowRight, ChevronRight,
-  Globe, Shield, Star, Users, Grid3X3, List, X, SlidersHorizontal
+  MapPin, Clock, Search, ArrowRight, ChevronRight,
+  Globe, Users, Grid3X3, List, X, Plus
 } from "lucide-react";
 import { Link, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,7 +40,6 @@ export default function DiscoverPage() {
   const [locationFilter, setLocationFilter] = useState<"all" | "remote" | "local">("all");
   const [budgetRange, setBudgetRange] = useState([0, 1000000]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [showFilters, setShowFilters] = useState(false);
 
   const { sector } = useSectorStore();
   const { formatLocal } = useLocalizationStore();
@@ -83,125 +81,221 @@ export default function DiscoverPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-transparent border-b border-border">
-        <div className="container mx-auto px-4 py-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-            <h1 className="text-4xl font-bold mb-3 text-foreground">Find tasks</h1>
-            <p className="text-lg text-muted-foreground">Browse opportunities from clients around the world</p>
-          </motion.div>
+      {/* Header */}
+      <div className="border-b border-border bg-muted/30">
+        <div className="container-tight py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground">Find tasks</h1>
+              <p className="text-muted-foreground text-sm mt-1">Browse opportunities from clients around the world</p>
+            </div>
+            <Link href="/create-request">
+              <Button className="gap-2 bg-primary hover:bg-primary/90 rounded-lg">
+                <Plus size={16} />
+                Post Task
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        {/* Search & Filters */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input placeholder="Search tasks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-12 h-12 rounded-xl border-border" />
-          </div>
-          <div className="flex gap-3">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full lg:w-[200px] h-12 rounded-xl"><Filter className="h-4 w-4 mr-2 text-muted-foreground" /><SelectValue placeholder="All Categories" /></SelectTrigger>
-              <SelectContent><SelectItem value="all">All Categories</SelectItem>{Object.entries(CATEGORY_MAP).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
-            </Select>
+      <main className="flex-1">
+        <div className="container-tight py-6">
+          {/* Search & Filters */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input 
+                placeholder="Search tasks..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="pl-12 h-11 rounded-lg border-border" 
+              />
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] h-11 rounded-lg">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {Object.entries(CATEGORY_MAP).map(([v, l]) => (
+                    <SelectItem key={v} value={v}>{l}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={locationFilter} onValueChange={(v) => setLocationFilter(v as any)}>
-              <SelectTrigger className="w-[140px] h-12 rounded-xl"><SelectValue placeholder="Location" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="remote">Remote</SelectItem>
-                <SelectItem value="local">On-site</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={locationFilter} onValueChange={(v) => setLocationFilter(v as any)}>
+                <SelectTrigger className="w-[120px] h-11 rounded-lg">
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                  <SelectItem value="local">On-site</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <div className="flex rounded-xl border border-border overflow-hidden">
-              <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="rounded-none h-12 w-12" onClick={() => setViewMode("grid")}><Grid3X3 className="h-4 w-4" /></Button>
-              <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="rounded-none h-12 w-12" onClick={() => setViewMode("list")}><List className="h-4 w-4" /></Button>
+              <div className="flex rounded-lg border border-border overflow-hidden">
+                <Button 
+                  variant={viewMode === "grid" ? "secondary" : "ghost"} 
+                  size="icon" 
+                  className="rounded-none h-11 w-11" 
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant={viewMode === "list" ? "secondary" : "ghost"} 
+                  size="icon" 
+                  className="rounded-none h-11 w-11" 
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Quick category pills */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {Object.entries(CATEGORY_MAP).slice(0, 8).map(([v, l]) => (
-            <Badge key={v} variant={categoryFilter === v ? "default" : "secondary"}
-              className={`cursor-pointer rounded-full px-4 py-2 transition-all ${categoryFilter === v ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}
-              onClick={() => setCategoryFilter(categoryFilter === v ? "" : v)}>
-              {l}
-            </Badge>
-          ))}
-          {hasActiveFilters && (
-            <Badge variant="outline" className="cursor-pointer rounded-full px-4 py-2 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={clearFilters}>
-              <X className="w-3 h-3 mr-1" /> Clear
-            </Badge>
-          )}
-        </div>
+          {/* Quick category pills */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {Object.entries(CATEGORY_MAP).slice(0, 8).map(([v, l]) => (
+              <button
+                key={v}
+                onClick={() => setCategoryFilter(categoryFilter === v ? "" : v)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  categoryFilter === v 
+                    ? "bg-primary text-primary-foreground" 
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            )}
+          </div>
 
-        {/* Results */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-muted-foreground"><span className="font-semibold text-foreground">{publishedTasks.length}</span> tasks available</p>
-        </div>
+          {/* Results */}
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{publishedTasks.length}</span> tasks available
+            </p>
+          </div>
 
-        <AnimatePresence mode="wait">
-          {publishedTasks.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Card className="p-16 text-center border-dashed border-2">
-                <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/20" />
-                <h3 className="text-2xl font-bold mb-3 text-foreground">No tasks found</h3>
-                <p className="text-muted-foreground mb-6">{hasActiveFilters ? "Try adjusting your filters" : "Be the first to post a task!"}</p>
-                <Link href="/create-request"><Button size="lg" className="rounded-full px-8">Post a Task <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
-              </Card>
-            </motion.div>
-          ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-                {publishedTasks.map((task, i) => (
-                  <motion.div key={task.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                    <Link href={`/request/${task.id}`}>
-                      <Card className="group cursor-pointer border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 h-full">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between gap-2 mb-3">
-                            <Badge variant="secondary" className="text-xs">{CATEGORY_MAP[task.category] || task.category}</Badge>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{getTimeAgo(task.createdAt)}</span>
-                          </div>
-                          <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-2">{task.title}</h3>
-                          <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{task.description}</p>
-
-                          {task.workerCount > 1 && (
-                            <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-accent/10 rounded-lg">
-                              <Users className="w-4 h-4 text-accent" />
-                              <span className="text-sm font-medium">{task.slotsFilled}/{task.workerCount} workers</span>
-                              <div className="flex-1 h-1.5 bg-accent/20 rounded-full overflow-hidden">
-                                <div className="h-full bg-accent rounded-full" style={{ width: `${(task.slotsFilled / task.workerCount) * 100}%` }} />
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
-                            {task.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{task.location}</span>}
-                            {task.isVirtual && <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" />Remote</span>}
-                            {task.applications.length > 0 && <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{task.applications.length} offers</span>}
-                          </div>
-
-                          <div className="flex items-center justify-between pt-3 border-t border-border">
-                            {task.rewardAmount ? (
-                              <span className="font-bold text-lg text-primary">{formatLocal(task.rewardAmount)}</span>
-                            ) : (
-                              <Badge variant="secondary" className="rounded-full">Flexible</Badge>
-                            )}
-                            <span className="text-sm text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                              View <ChevronRight className="w-4 h-4" />
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
+          <AnimatePresence mode="wait">
+            {publishedTasks.length === 0 ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <Card className="border-dashed border-2">
+                  <CardContent className="p-12 text-center">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-foreground">No tasks found</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {hasActiveFilters ? "Try adjusting your filters" : "Be the first to post a task!"}
+                    </p>
+                    <Link href="/create-request">
+                      <Button className="gap-2 bg-primary hover:bg-primary/90">
+                        Post a Task
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
                     </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <div className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
+                  {publishedTasks.map((task, i) => (
+                    <motion.div 
+                      key={task.id} 
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ delay: i * 0.03 }}
+                    >
+                      <Link href={`/request/${task.id}`}>
+                        <Card className="group cursor-pointer border-border hover:border-primary/30 hover:shadow-md transition-all h-full">
+                          <CardContent className="p-5">
+                            <div className="flex items-start justify-between gap-2 mb-3">
+                              <Badge variant="secondary" className="text-xs font-normal">
+                                {CATEGORY_MAP[task.category] || task.category}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {getTimeAgo(task.createdAt)}
+                              </span>
+                            </div>
+                            
+                            <h3 className="font-medium text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                              {task.title}
+                            </h3>
+                            <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                              {task.description}
+                            </p>
+
+                            {task.workerCount > 1 && (
+                              <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-primary/5 rounded-lg">
+                                <Users className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-medium">{task.slotsFilled}/{task.workerCount}</span>
+                                <div className="flex-1 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-primary rounded-full" 
+                                    style={{ width: `${(task.slotsFilled / task.workerCount) * 100}%` }} 
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
+                              {task.location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3.5 h-3.5" />
+                                  {task.location}
+                                </span>
+                              )}
+                              {task.isVirtual && (
+                                <span className="flex items-center gap-1">
+                                  <Globe className="w-3.5 h-3.5" />
+                                  Remote
+                                </span>
+                              )}
+                              {task.applications.length > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3.5 h-3.5" />
+                                  {task.applications.length} offer{task.applications.length !== 1 ? "s" : ""}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center justify-between pt-4 border-t border-border">
+                              {task.rewardAmount ? (
+                                <span className="font-semibold text-lg text-primary">{formatLocal(task.rewardAmount)}</span>
+                              ) : (
+                                <Badge variant="secondary" className="font-normal">Flexible</Badge>
+                              )}
+                              <span className="text-sm text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                                View
+                                <ChevronRight className="w-4 h-4" />
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </main>
 
       <Footer />
