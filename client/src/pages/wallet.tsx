@@ -579,6 +579,7 @@ function WalletPageContent() {
             )}
           </CardContent>
         </Card>
+        </div>
       </main>
       <Footer />
 
